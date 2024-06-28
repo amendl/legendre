@@ -108,7 +108,7 @@ int legendre()
 			sinograms->Draw("COLZ");
 			// can1->SetLogz();
 			can1->SaveAs(Form("legender_track-%lu_iter-%d.png", reconstructed_lines.size()/2, q));
-			sinograms->Write();
+			SaveAndGenerateProjections(file,sinograms);
 			
 			double maximum = 0.0;
 			for(int i = 1; i < resolution; i++)
