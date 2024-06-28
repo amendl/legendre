@@ -1,3 +1,4 @@
+#include <TMathBase.h>
 #include <TString.h>
 #include <TRandom.h>
 #include <TSystem.h>
@@ -22,6 +23,7 @@ const int n2 = 113;
 const int resolution = 1000;
 
 void SaveAndGenerateProjections(TFile*file,TH2*th2);
+void MovingSum(TH1*th1);
 	
 void LinearEventGenerator(double tracker_cells[][n2], double a, double b);
 void CircularEventGenerator(double tracker_cells[][n2], double x0, double y0, double r0);
@@ -37,7 +39,7 @@ int legendre()
 	//LinearEventGenerator( tracker_cells, -0.97, 40.0);
 	//LinearEventGenerator( tracker_cells, -0.97, 25.0);
 	// CircularEventGenerator( tracker_cells, 40.46, -13.45, 36.73);
-	CircularEventGeneratorFromFoil(tracker_cells, 56.,0.1, 300.);
+	CircularEventGeneratorFromFoil(tracker_cells, 56.,-0.8, +20.);
 		
 	TH2F *tracker_hits = new TH2F("tracker", "tracker; x; y", n1, -0.5, n1-0.5, n2, -0.5, n2-0.5);
 	for(int i = 0; i < n1; i++)
@@ -67,7 +69,7 @@ int legendre()
 		el[i]->SetLineWidth(2);
    		el[i]->Draw("SAME");
 	}
-	can1->SaveAs("lines_without_rec.png");
+	// can1->SaveAs("lines_without_rec.png");
 	
 	cout << "number of hits: " << hits.size()/3 << endl;		
 
@@ -84,11 +86,11 @@ int legendre()
 		
 		double r, theta;
 		double phi1 = 0.0;
-		double phi2 = M_PI;
+		double phi2 = 2*M_PI;
 		double R1 = -80;
 		double R2 = 80;
-		double gaussian_theta = 0.5;
-		double gaussian_r = 0.5;
+		double gaussian_theta = 2;
+		double gaussian_r = 2;
 		
 		double peak_Theta;
 		double peak_R;
@@ -115,7 +117,7 @@ int legendre()
 			sinograms->SetStats(0);
 			sinograms->Draw("COLZ");
 			// can1->SetLogz();
-			can1->SaveAs(Form("legender_track-%lu_iter-%d.png", reconstructed_lines.size()/2, q));
+			// can1->SaveAs(Form("legender_track-%lu_iter-%d.png", reconstructed_lines.size()/2, q));
 			SaveAndGenerateProjections(file,sinograms);
 			
 			double maximum = 0.0;
@@ -261,6 +263,32 @@ void CircularEventGenerator( double tracker_cells[][n2], double x0, double y0, d
 }
 void CircularEventGeneratorFromFoil(double tracker_cells[][n2], double y0, double sinus, double r0)
 {
-	assert(abs(sinus) <=1. );
-	CircularEventGenerator(tracker_cells, sinus*r0, y0-sqrt(1-sinus*sinus)*r0,r0);
+	assert(abs(sinus)<=1.);
+	CircularEventGenerator(tracker_cells, sinus*r0, y0+sqrt(1-sinus*sinus)*r0,TMath::Abs(r0));
+}
+/// @brief returns number of bin in the middle of window of len
+int MovingSum(TH1*th1,size_t len)
+{
+  int nBins = th1->GetNbinsX();
+
+	double max = -1000.;
+	int max_i = 1;
+  for (int i = 1+len; i <= nBins; ++i) {
+    int count = 0;
+    double sum = 0.0;
+
+    for (int j = i - len; j <= i; ++j) {
+      if (j >= 1 && j <= nBins) {
+        sum += th1->GetBinContent(j);
+        ++count;
+      }
+  	}
+
+  	if (sum>max) {
+  		max = sum;
+  		max_i = i;
+  	}
+  }
+
+  return max_i-len/2;
 }
