@@ -17,8 +17,9 @@ const int n1 = 9;
 const int n2 = 113;
 const int resolution = 1000;
 	
-void LinearEventGenerator( double tracker_cells[][n2], double a, double b);
-void CircularEventGenerator( double tracker_cells[][n2], double x0, double y0, double r0);
+void LinearEventGenerator(double tracker_cells[][n2], double a, double b);
+void CircularEventGenerator(double tracker_cells[][n2], double x0, double y0, double r0);
+void CircularEventGeneratorFromFoil(double tracker_cells[][n2], double y0, double sinus, double r0);
 
 int legendre()
 {
@@ -207,4 +208,8 @@ void CircularEventGenerator( double tracker_cells[][n2], double x0, double y0, d
 			if( tracker_cells[i][j] == 0.0 && distance < 0.5 )
 				tracker_cells[i][j] = distance;
 		}
+}
+void CircularEventGeneratorFromFoil(double tracker_cells[][n2], double y0, double sinus, double r0)
+{
+	throw "Not implemented";	
 }
