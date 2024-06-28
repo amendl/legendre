@@ -16,6 +16,8 @@ using namespace std;
 const int n1 = 9;
 const int n2 = 113;
 const int resolution = 1000;
+
+void SaveAndGenerateProjections(TFile*file,TH2*th2);
 	
 void LinearEventGenerator(double tracker_cells[][n2], double a, double b);
 void CircularEventGenerator(double tracker_cells[][n2], double x0, double y0, double r0);
@@ -181,6 +183,10 @@ int legendre()
 	}
 	
 	return EXIT_SUCCESS;
+}
+void SaveAndGenerateProjections(TFile*file,TH2*th2)
+{
+	throw "Not implemented";
 }
 void LinearEventGenerator( double tracker_cells[][n2], double a, double b)
 {
