@@ -1,4 +1,5 @@
 #include <TMathBase.h>
+#include <TApplication.h>
 #include <TString.h>
 #include <TRandom.h>
 #include <TSystem.h>
@@ -39,8 +40,8 @@ int legendre()
 	//LinearEventGenerator( tracker_cells, -0.97, 40.0);
 	//LinearEventGenerator( tracker_cells, -0.97, 25.0);
 	// CircularEventGenerator( tracker_cells, 40.46, -13.45, 36.73);
-	// CircularEventGeneratorFromFoil(tracker_cells, 56.,-0.8, +20.);
-	CircularEventGeneratorFromFoil(tracker_cells, 56.,-0.8, +80.);
+	CircularEventGeneratorFromFoil(tracker_cells, 56.,-0.8, 20.);
+	CircularEventGeneratorFromFoil(tracker_cells, 56.,0.8, +80.);
 
 		
 	TH2F *tracker_hits = new TH2F("tracker", "tracker; x; y", n1, -0.5, n1-0.5, n2, -0.5, n2-0.5);
@@ -60,7 +61,6 @@ int legendre()
 				hits.push_back(j);
 				hits.push_back(tracker_cells[i][j]);
 			}
-			
 	
 	TCanvas *can1 = new TCanvas("can1", "canvas", 1000, 1000);
 	can1->Range(-2,-2,n1+2,n2+2);
@@ -80,19 +80,20 @@ int legendre()
 
 
 	TFile*file = new TFile("data.root","RECREATE");
-
-	
+	///
+	/// For recursive search of multiple tracks
+	///
 	//while( hits.size()/2 > 5 && hits.size() != hit_count_last)
 	
 	{
 		
 		double r, theta;
-		double phi1 = 0.0;
-		double phi2 = M_PI;
+		double phi1 = 0.0;//+M_PI/2.;
+		double phi2 = M_PI+M_PI/2.;
 		double R1 = -80;
 		double R2 = 80;
-		double gaussian_theta = 2;
-		double gaussian_r = 2;
+		double gaussian_theta = 0.5;
+		double gaussian_r = 0.5;
 		
 		double peak_Theta;
 		double peak_R;
@@ -113,12 +114,8 @@ int legendre()
 					}
 				}	
 			}
-				
-			//if(hit_count_last == 0 && q == 0) sinograms->Draw("COLZ");
-			
 			sinograms->SetStats(0);
 			sinograms->Draw("COLZ");
-			// can1->SetLogz();
 			// can1->SaveAs(Form("legender_track-%lu_iter-%d.png", reconstructed_lines.size()/2, q));
 			SaveAndGenerateProjections(file,sinograms);
 			
@@ -140,8 +137,8 @@ int legendre()
 			delta_phi = phi2 - phi1;
 			delta_R = R2 - R1;
 			
-			peak_Theta = phi1 + delta_phi * peak_Theta / (double)resolution;
-			peak_R = R1 + delta_R * (peak_R-0.5) / (double)resolution;
+			peak_Theta = phi1 + delta_phi * peak_Theta / double(resolution);
+			peak_R = R1 + delta_R * (peak_R-0.5) / double(resolution);
 			
 			//cout << "iteration " << q  << ": " << peak_Theta << "	" << peak_R << endl;
 			
