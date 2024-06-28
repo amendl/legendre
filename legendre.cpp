@@ -1,3 +1,4 @@
+#include <TString.h>
 #include <TSystem.h>
 #include <TLine.h>
 #include <TEllipse.h>
@@ -186,7 +187,42 @@ int legendre()
 }
 void SaveAndGenerateProjections(TFile*file,TH2*th2)
 {
-	throw "Not implemented";
+  size_t nBinsX = th2->GetNbinsX();
+  size_t nBinsY = th2->GetNbinsY();
+  double xMin = th2->GetXaxis()->GetXmin();
+  double xMax = th2->GetXaxis()->GetXmax();
+  double yMin = th2->GetYaxis()->GetXmin();
+  double yMax = th2->GetYaxis()->GetXmax();
+
+  TH1D* projX = new TH1D(Form("%s_x",th2->GetName()), "Projection on X axis (Max)", nBinsX, xMin, xMax);
+  TH1D* projY = new TH1D(Form("%s_y",th2->GetName()), "Projection on Y axis (Max)", nBinsY, yMin, yMax);
+
+  for (size_t ix = 1; ix <= nBinsX; ++ix) {
+    double maxValX = 0;
+    for (int iy = 1; iy <= nBinsY; ++iy) {
+      double binContent = th2->GetBinContent(ix, iy);
+      if (binContent > maxValX) {
+          maxValX = binContent;
+      }
+    }
+    projX->SetBinContent(ix, maxValX);
+  }
+
+  for (size_t iy = 1; iy <= nBinsY; ++iy) {
+    double maxValY = 0;
+    for (int ix = 1; ix <= nBinsX; ++ix) {
+      double binContent = th2->GetBinContent(ix, iy);
+      if (binContent > maxValY) {
+        maxValY = binContent;
+      }
+    }
+    projY->SetBinContent(iy, maxValY);
+  }
+
+  file->cd();
+  th2->Write();
+  projX->Write();
+  projY->Write();
 }
 void LinearEventGenerator( double tracker_cells[][n2], double a, double b)
 {
