@@ -39,7 +39,9 @@ int legendre()
 	//LinearEventGenerator( tracker_cells, -0.97, 40.0);
 	//LinearEventGenerator( tracker_cells, -0.97, 25.0);
 	// CircularEventGenerator( tracker_cells, 40.46, -13.45, 36.73);
-	CircularEventGeneratorFromFoil(tracker_cells, 56.,-0.8, +20.);
+	// CircularEventGeneratorFromFoil(tracker_cells, 56.,-0.8, +20.);
+	CircularEventGeneratorFromFoil(tracker_cells, 56.,-0.8, +80.);
+
 		
 	TH2F *tracker_hits = new TH2F("tracker", "tracker; x; y", n1, -0.5, n1-0.5, n2, -0.5, n2-0.5);
 	for(int i = 0; i < n1; i++)
@@ -86,7 +88,7 @@ int legendre()
 		
 		double r, theta;
 		double phi1 = 0.0;
-		double phi2 = 2*M_PI;
+		double phi2 = M_PI;
 		double R1 = -80;
 		double R2 = 80;
 		double gaussian_theta = 2;
@@ -274,13 +276,11 @@ int MovingSum(TH1*th1,size_t len)
 	double max = -1000.;
 	int max_i = 1;
   for (int i = 1+len; i <= nBins; ++i) {
-    int count = 0;
     double sum = 0.0;
 
     for (int j = i - len; j <= i; ++j) {
       if (j >= 1 && j <= nBins) {
         sum += th1->GetBinContent(j);
-        ++count;
       }
   	}
 
