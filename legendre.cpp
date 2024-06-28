@@ -1,4 +1,5 @@
 #include <TString.h>
+#include <TRandom.h>
 #include <TSystem.h>
 #include <TLine.h>
 #include <TEllipse.h>
@@ -7,6 +8,8 @@
 #include <TGraph.h>
 #include <TFile.h>
 #include <TMultiGraph.h>
+#include <cassert>
+#include <cmath>
 #include <ctime>
 #include <math.h>
 #include <iostream>
@@ -29,11 +32,12 @@ int legendre()
 	double tracker_cells[n1][n2] = {0.0};
 	// LinearEventGenerator( tracker_cells, -1.0, 95.2);
 	// LinearEventGenerator( tracker_cells, -1.18, 43.0);
-	//LinearEventGenerator( tracker_cells, -16328, 602000);
+	// LinearEventGenerator( tracker_cells, -16328, 602000);
 	// LinearEventGenerator( tracker_cells, 6.43, 18.5);
 	//LinearEventGenerator( tracker_cells, -0.97, 40.0);
 	//LinearEventGenerator( tracker_cells, -0.97, 25.0);
-	CircularEventGenerator( tracker_cells, 40.46, -13.45, 36.73);
+	// CircularEventGenerator( tracker_cells, 40.46, -13.45, 36.73);
+	CircularEventGeneratorFromFoil(tracker_cells, 56.,0.1, 300.);
 		
 	TH2F *tracker_hits = new TH2F("tracker", "tracker; x; y", n1, -0.5, n1-0.5, n2, -0.5, n2-0.5);
 	for(int i = 0; i < n1; i++)
@@ -81,8 +85,10 @@ int legendre()
 		double r, theta;
 		double phi1 = 0.0;
 		double phi2 = M_PI;
-		double R1 = -40;
-		double R2 = 40;
+		double R1 = -80;
+		double R2 = 80;
+		double gaussian_theta = 0.5;
+		double gaussian_r = 0.5;
 		
 		double peak_Theta;
 		double peak_R;
@@ -97,8 +103,10 @@ int legendre()
 				{
 					theta = phi1 + (k * (phi2 - phi1) / resolution);
 					r = ( -(hits.at(3*i))*cos(theta) ) - ( -(hits.at(3*i+1))*sin(theta) );
-					sinograms->Fill( theta, r - hits.at(3*i+2) );
-					sinograms->Fill( theta, r + hits.at(3*i+2) );
+					for(size_t j = 0; j<400; j++) {
+						sinograms->Fill( gRandom->Gaus(theta,gaussian_theta*(phi2- phi1)/resolution),gRandom->Gaus(r - hits.at(3*i+2),gaussian_r*(R2-R1)/resolution));
+						sinograms->Fill( gRandom->Gaus(theta,gaussian_theta*(phi2- phi1)/resolution),gRandom->Gaus(r + hits.at(3*i+2),gaussian_r*(R2-R1)/resolution));
+					}
 				}	
 			}
 				
@@ -253,5 +261,6 @@ void CircularEventGenerator( double tracker_cells[][n2], double x0, double y0, d
 }
 void CircularEventGeneratorFromFoil(double tracker_cells[][n2], double y0, double sinus, double r0)
 {
-	throw "Not implemented";	
+	assert(abs(sinus) <=1. );
+	CircularEventGenerator(tracker_cells, sinus*r0, y0-sqrt(1-sinus*sinus)*r0,r0);
 }
